@@ -23,9 +23,9 @@
    - Addressables 기반 프리팹 로드 & 풀 초기화
   
 4. **RewardCore**
-  - 보상 지급 로직
+   - 보상 지급 로직
 
 5. **UICore 일부**
-  - 시네머신을 통한 카메리 흔들림 효과 구현 (CameraShaker)
-  - 두트윈을 활용한 컷인 효과 구현 (Cutin)
-  - 두트윈을 활용한 엔딩 크레딧 구현 (EndingCredits)
+   - 시네머신을 통한 카메리 흔들림 효과 구현 (CameraShaker)
+   - 두트윈을 활용한 컷인 효과 구현 (Cutin)
+   - 두트윈을 활용한 엔딩 크레딧 구현 (EndingCredits)
