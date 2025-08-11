@@ -35,26 +35,28 @@
 
 3. **CharacterCore**
  
-   -CharacterBase: 모든 캐릭터의 공통 기능 정의
+   - CharacterBase: 모든 캐릭터의 공통 기능 정의
    
-   -Unit: 플레이어 유닛 전용 로직 및 데이터 처리
+   - Unit: 플레이어 유닛 전용 로직 및 데이터 처리
    
-   -Monster: 몬스터 및 보스 전용 로직 및 AI 패턴
+   - Monster: 몬스터 및 보스 전용 로직 및 AI 패턴
    
-   -StatusEffectController: 버프/디버프 상태효과 관리 시스템
+   - StatusEffectController: 버프/디버프 상태효과 관리 시스템
 
 5. **EffectCore**
  
-   -Effect: 이펙트 생명주기 및 풀 반환
+   - Effect: 이펙트 생명주기 및 풀 반환
    
-   -EffectProvider: 이펙트 스폰 및 오브젝트 풀 연동
+   - EffectProvider: 이펙트 스폰 및 오브젝트 풀 연동
    
-   -EffectSpawner: 전투 상황별 이펙트 배치 및 설정
+   - EffectSpawner: 전투 상황별 이펙트 배치 및 설정
    
-   -ProjectileLauncher: 투사체 발사 및 궤적 처리
+   - ProjectileLauncher: 투사체 발사 및 궤적 처리
 
 ## 🛠 기술 스택
 - Unity 2022.3 LTS
 - C#
-- Facade Pattern
-- DOTween
+- Facade Pattern - 복잡도 관리
+- DOTween - 애니메이션 시퀀싱
+- Object Polling - 성능 최적화
+- ScriptableObject - 하드코딩 숫자 제거
