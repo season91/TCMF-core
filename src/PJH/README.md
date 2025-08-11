@@ -5,6 +5,7 @@
 
 ## 📌 담당 기능
 1. **BattleCore**
+
    -BattleManager: 전투 전체 흐름 제어 및 서비스 통합
    
    -ActionManager: 공격, 스킬 실행 및 시퀀스 관리
@@ -20,10 +21,15 @@
 
    IBattleServices
    ├── IBattleActionFacade    // 액션 실행
+   
    ├── IBattleUIFacade        // UI 이벤트
+   
    ├── IBattleTargetingFacade // 타겟팅
+   
    ├── IBattleFlowFacade      // 게임 흐름
+   
    ├── IBattleInputFacade     // 입력 처리
+   
    └── IBattleEffectFacade    // 이펙트 관리
 
 3. **CharacterCore**
