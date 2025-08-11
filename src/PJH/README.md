@@ -6,11 +6,17 @@
 ## 📌 담당 기능
 1. **BattleCore**
    -BattleManager: 전투 전체 흐름 제어 및 서비스 통합
+   
    -ActionManager: 공격, 스킬 실행 및 시퀀스 관리
+   
    -TurnManager: 턴제 전투 로직 및 순서 관리
+   
    -AnimationController: 전투 애니메이션 제어
+   
    -BattleConfig: 전투 관련 설정값 통합 관리
+   
    -Facade 패턴: 복잡한 전투 시스템을 단순한 인터페이스로 추상화
+   
 
    IBattleServices
    ├── IBattleActionFacade    // 액션 실행
