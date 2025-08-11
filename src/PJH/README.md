@@ -19,29 +19,38 @@
    -Facade 패턴: 복잡한 전투 시스템을 단순한 인터페이스로 추상화
    
 
-   IBattleServices
-   ├── IBattleActionFacade    // 액션 실행
+  --> IBattleServices
    
-   ├── IBattleUIFacade        // UI 이벤트
+      ├── IBattleActionFacade    // 액션 실행
    
-   ├── IBattleTargetingFacade // 타겟팅
+      ├── IBattleUIFacade        // UI 이벤트
    
-   ├── IBattleFlowFacade      // 게임 흐름
+      ├── IBattleTargetingFacade // 타겟팅
    
-   ├── IBattleInputFacade     // 입력 처리
+      ├── IBattleFlowFacade      // 게임 흐름
    
-   └── IBattleEffectFacade    // 이펙트 관리
+      ├── IBattleInputFacade     // 입력 처리
+   
+      └── IBattleEffectFacade    // 이펙트 관리
 
 3. **CharacterCore**
-   -CharacterBase: 모든 캐릭터의 공통 기능 정의 (추상 클래스)
+ 
+   -CharacterBase: 모든 캐릭터의 공통 기능 정의
+   
    -Unit: 플레이어 유닛 전용 로직 및 데이터 처리
+   
    -Monster: 몬스터 및 보스 전용 로직 및 AI 패턴
+   
    -StatusEffectController: 버프/디버프 상태효과 관리 시스템
 
-4. **EffectCore**
+5. **EffectCore**
+ 
    -Effect: 이펙트 생명주기 및 풀 반환
+   
    -EffectProvider: 이펙트 스폰 및 오브젝트 풀 연동
+   
    -EffectSpawner: 전투 상황별 이펙트 배치 및 설정
+   
    -ProjectileLauncher: 투사체 발사 및 궤적 처리
 
 ## 🛠 기술 스택
