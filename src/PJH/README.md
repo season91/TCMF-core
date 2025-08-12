@@ -56,7 +56,7 @@
 ⚙️ 핵심 기능
 
 🎮 턴제 배틀 시스템
-![brochure_input_timeline_fixed_v4](https://github.com/user-attachments/assets/ba65a9f6-ca16-4694-9604-42228f066697)![brochure_input_timeline_fixed_v4](https://github.com/user-attachments/assets/2c96ce4d-5702-4ede-b5ec-309dd7d7c1f8)
+![brochure_input_timeline_fixed_v4](https://github.com/user-attachments/assets/ba65a9f6-ca16-4694-9604-42228f066697)
 
 
 - 수동/자동 모드 실시간 전환
