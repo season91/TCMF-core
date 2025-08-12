@@ -1,38 +1,50 @@
-# tcmf-core
-**The Cat and Monster Forest** 프로젝트의 핵심 로직 저장소입니다.  
+# tcmf-core  
+**The Cat and Monster Forest** 프로젝트의 **C# 코어 로직** 저장소입니다.  
 팀별/개인별 기여 코드를 모듈화하여 관리합니다.
 
-## 📌 프로젝트 개요
-- **장르**: 2D 수집형 RPG
-- **엔진**: Unity 2022.3 LTS
-- **언어**: C#
-- **버전 관리**: Git + GitHub
-- **협업 도구**: Notion, Figma
-- **배포 환경**: Android
+---
 
-## 📂 구조
+## 📌 프로젝트 개요
+- **장르**: 모바일 2D 수집형 RPG  
+- **목적**: 게임 엔진에 종속되지 않는 순수 C# 코어 로직 개발 및 모듈화  
+- **언어**: C#  
+- **엔진**: Unity 2022.3 LTS (실제 적용 시)  
+- **버전 관리**: Git  
+- **협업 도구**: Notion, Figma
+
+---
+
+## 📂 레포 구조
 ```
 tcmf-core/
 ├─ src/
-│ ├─ CAY/ # 팀원 조아영 (Firebase, Pool, Inventory)
-│ │ ├─ FirebaseCore/
-│ │ ├─ ObjectPoolCore/
-│ │ ├─ InventoryCore/
-│ │ └─ README.md # 개인 작업 설명
-│ ├─ CYI/ # 팀원 최영임 (UI, Resource, Addressable)
-│ │ ├─ UICore/
-│ │ ├─ ....
-│ │ └─ README.md # 개인 작업 설명
-│ ├─ PJH/ # 팀원 박지환 (Battle, Skill)
-│ │ ├─ BattleCore/
-│ │ ├─ ....
-│ │ └─ README.md # 개인 작업 설명
-└─ README.md # 전체 프로젝트 개요
+│ ├─ CAY/ # 팀원1 모듈
+│ ├─ CYI/ # 팀원2 모듈
+│ ├─ PJH/ # 팀원3 모듈
+│ └─ ...
+└─ README.md # 전체 개요(본 문서)
 ```
+> 각 팀원별 세부 기능 및 구현 설명은 `src/<이니셜>/README.md` 참조
 
-## 📄 팀원별 기여
-| 팀원 | 담당 기능 | 주요 기술 |
-|------|-----------|-----------|
-| 조아영 | Firebase 연동, 오브젝트 풀링, 인벤토리 시스템 | Firebase SDK, Addressables, C# |
-| 최영임 | 가챠 시스템, UI, Resource, Addressable.... | Addressables, C# |
-| 박지환 | 전투 시스템, 사운드.... | Facade Pattern, C# |
+---
+
+## ⚙️ 공통 개발 규칙
+- **네이밍(C#)**: `public` → PascalCase / `private` → camelCase
+- **폴더/네임스페이스**: 기능별 단위 분리
+- **코드 원칙**: 단일 책임, 디버그 테스트 후 PR
+- **리소스 관리**: GC 최소화, 컬렉션 재사용, 불필요한 동적 할당 지양  
+- **의존성 관리**: 외부 SDK는 필요한 경우에만 모듈 내부에 국한하여 사용
+
+---
+
+## 🛠 공통 모듈 예시
+- **InventoryCore** – 지급/소모/정렬/캐시 관리
+- **GachaCore** – 소프트/하드 천장, 피티 시스템
+- **BattleCore** – 전투 규칙 및 이벤트 흐름
+- **Common** – 공용 유틸, Result 타입, 확장 메서드
+
+---
+
+## 🗂 관리 방식
+- 모든 변경 사항은 PR을 통해 검토 후 병합
+- 공통 규칙 위반 시 수정 요청
