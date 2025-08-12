@@ -17,7 +17,7 @@
    - BattleConfig: 전투 관련 설정값 통합 관리
    
    - Facade 패턴: 복잡한 전투 시스템을 단순한 인터페이스로 추상화
- ![battle_flow_facade_v4_5](https://github.com/user-attachments/assets/94a97e34-731c-4585-8668-59d07a2eb653)
+![battle_flow_facade_v4_5_aligned](https://github.com/user-attachments/assets/32b21b82-98cd-41fd-9f0d-fa4fbe8aff1a)
 
      IBattleServices
    
