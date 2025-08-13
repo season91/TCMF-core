@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 /// <summary>
-/// 로그인 흐름을 제어하는 일반 C# 클래스 (MonoBehaviour 아님)
+/// Start Scene에서 해야할 로그인 흐름을 제어하는 일반 C# 클래스 (MonoBehaviour 아님)
 /// UIEntry → StartManager 호출 → FirebaseManager로 로그인 실행
 /// 이후 닉네임 설정 및 로비 진입 흐름 처리
 /// </summary>
@@ -42,6 +44,9 @@ public class StartManager
         });
     }
     
+    /// <summary>
+    /// UI 닉네임 설정 창 Open
+    /// </summary>
     private void OpenInputNicNameUI()
     {
         var context = new InputOpenContext
@@ -49,20 +54,43 @@ public class StartManager
             Title = "닉네임 설정",
             PlaceholderText = "8글자(한글, 영문, 숫자)",
             OkButtonText = "닉네임 결정",
-            OkButtonAction = async nickName =>
-            {
-                await FirebaseManager.Instance.UploadFirstUserData(nickName);
-                await EnterLobbyAsync();
-            }
+            OkButtonAction = SetNickNameAsync
         };
 
         UIManager.Instance.Open<UIInputBoxPopup>(OpenContext.WithContext(context));
     }
+
+    /// <summary>
+    /// 닉네임 입력 완료 후처리
+    /// </summary>
+    private async void SetNickNameAsync(string nickName)
+    {
+        StringInfo stringInfo = new StringInfo(nickName);
+        int length = stringInfo.LengthInTextElements;
+        
+        if (length > 8 || Regex.IsMatch(nickName, "[^가-힣a-zA-Z0-9]"))
+        {
+            var context = new SlideOpenContext
+            {
+                Comment = "사용할 수 없는 닉네임입니다."
+            };
+            UIManager.Instance.Open<UISlidePopup>(OpenContext.WithContext(context));
+            OpenInputNicNameUI();
+        }
+        else
+        {
+            await FirebaseManager.Instance.UploadFirstUserDataAsync(nickName);
+            await EnterLobbyAsync();
+        }
+    }
     
+    /// <summary>
+    /// 로비씬 진입 후 UI Open
+    /// </summary>
     private async Task EnterLobbyAsync()
     {
         await FirebaseManager.Instance.LoadUserDataAsync();
-        UIManager.Instance.GetUI<UIEntry>().ReadyEnterLobby();
+        UIManager.Instance.GetUI<UISceneStart>().ShowEnterLobbyUI();
     }
     
 }

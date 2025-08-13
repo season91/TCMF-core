@@ -1,9 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
 
 public enum BattleState
@@ -189,7 +186,7 @@ public class BattleManager : Singleton<BattleManager>, IBattleServices
     }
     
     // 전투 승리 후 흐름 처리 (보상, 진척도 저장, UI 등)
-    private async Task HandleBattleVictoryAsync()
+    public async Task HandleBattleVictoryAsync()
     {
         // 진척도 및 스테이지 정보 가져오기
         var progress = StageManager.Instance.GetOrCreateStageProgress();

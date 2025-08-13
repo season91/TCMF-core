@@ -1,5 +1,7 @@
 ﻿using System.Linq;
-
+/// <summary>
+/// 아이템 정렬 클래스
+/// </summary>
 public class InventoryFilterSorter
 {
     private readonly InventoryCache cache;
@@ -8,7 +10,9 @@ public class InventoryFilterSorter
     {
         this.cache = cache;
     }
-    // 유저 인벤토리 전체를 itemType별로 정리하고 획득 시간순으로 정렬
+    /// <summary>
+    /// 유저 인벤토리 전체를 itemType별로 정리하고 획득 시간순으로 정렬
+    /// </summary>
     public void SortInventoryByObtainedTimeDesc(ItemType type)
     {
         if (!cache.TryGetMutableItemList(type, out var list))

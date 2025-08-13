@@ -1,6 +1,8 @@
 using System;
 using Firebase.Analytics;
-
+/// <summary>
+/// Firebase GA 이벤트 로깅 담당
+/// </summary>
 public static class AnalyticsHelper 
 {
     static readonly string uid = FirebaseManager.Instance.DbUser.UserId;
@@ -18,7 +20,6 @@ public static class AnalyticsHelper
 
         MyDebug.Log($"[Analytics] Screen View Logged: {screen} ({uiName})");
     }
-    
     
     // 가챠 이벤트 시작 로깅
     public static void LogGachaStartEvent(ResourceType resourceType, int cost)

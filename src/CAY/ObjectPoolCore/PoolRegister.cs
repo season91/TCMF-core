@@ -6,12 +6,12 @@ using UnityEngine;
 /// </summary>
 public static class PoolRegister
 {
-    // lobby 씬때 unit 등록
+    // lobby, battle 씬 때 unit 등록
     private static bool isUnitPrefabsRegistered = false;
     // battle 씬때 monster 등록
     private static bool isMonsterPrefabsRegistered = false;
-
     private static bool isEffectPrefabsRegistered = false;
+    
     /// <summary>
     /// 유닛 프리팹을 ObjectPool에 등록
     /// - MasterData의 프리팹 주소 기준으로 리소스를 가져오고
@@ -24,9 +24,6 @@ public static class PoolRegister
             MyDebug.Log("이미 유닛 프리팹 등록 완료");
             return;
         }
-
-        // isUnitPrefabsRegistered = true;
-        MyDebug.Log("유닛 프리팹 최초 등록");
 
         // 유닛 프리팹 등록
         foreach (var unitData in MasterData.UnitDataDict)
@@ -81,7 +78,6 @@ public static class PoolRegister
             return;
         }
         
-        // isEffectPrefabsRegistered = true;
         MyDebug.Log("첫 이펙트 프리펩 등록");
         
         // 모든 Effect 타입별로 등록
@@ -109,12 +105,7 @@ public static class PoolRegister
             if (prefab != null)
             {
                 ObjectPoolManager.Instance.RegisterObjectPool(PoolCategory.Effect, addressableKey, prefab);
-                // MyDebug.Log($"AttackEffect 프리팹 등록: {addressableKey}");
             }
-            // else
-            // {
-            //     MyDebug.LogWarning($"AttackEffect 프리팹을 찾을 수 없음: {addressableKey}");
-            // }
         }
     }
 
@@ -129,12 +120,7 @@ public static class PoolRegister
             if (prefab != null)
             {
                 ObjectPoolManager.Instance.RegisterObjectPool(PoolCategory.Effect, addressableKey, prefab);
-                // MyDebug.Log($"SkillEffect 프리팹 등록: {addressableKey}");
             }
-            // else
-            // {
-            //     MyDebug.LogWarning($"SkillEffect 프리팹을 찾을 수 없음: {addressableKey}");
-            // }
         }
     }
 
@@ -149,12 +135,7 @@ public static class PoolRegister
             if (prefab != null)
             {
                 ObjectPoolManager.Instance.RegisterObjectPool(PoolCategory.Effect, addressableKey, prefab);
-                // MyDebug.Log($"StatusEffect 프리팹 등록: {addressableKey}");
             }
-            // else
-            // {
-            //     MyDebug.LogWarning($"StatusEffect 프리팹을 찾을 수 없음: {addressableKey}");
-            // }
         }
     }
 }

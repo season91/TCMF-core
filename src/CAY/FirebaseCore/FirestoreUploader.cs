@@ -12,139 +12,10 @@ using UnityEngine;
 
 public class FirestoreUploader
 {
-    
-#if UNITY_EDITOR
-    /// <summary>
-    /// RAWDATA 적재 - 마스터 데이터
-    /// </summary>
-    public static void UploadMasterDataToFirestore(object data, string colType)
-    {
-        var db = FirebaseFirestore.DefaultInstance;
-        var col = db.Collection(FirestoreCollection.Data)
-                                    .Document(FirestoreDocument.RowData)
-                                    .Collection(colType);
-        string id = null;
-        switch (colType)
-        {
-            case FirestoreCollection.Item:
-                ItemData item = (ItemData) data;
-                id = item.Code;
-                col.Document(id).SetAsync(item).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"ITEM 업로드: {id}");
-                    else
-                        MyDebug.LogError($"ITEM 실패: {id} / {task.Exception}");
-                });
-                break;
-            case FirestoreCollection.Monster:
-                MonsterData monster = (MonsterData) data;
-                id = monster.Code;
-                col.Document(id).SetAsync(monster).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"MONSTER 업로드: {id}");
-                    else
-                        MyDebug.LogError($"MONSTER 실패: {id} / {task.Exception}");
-                });
-                break;
-            case FirestoreCollection.Stage:
-                StageData stage = (StageData) data;
-                id = stage.Code;
-                col.Document(id).SetAsync(stage).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"STAGE 업로드: {id}");
-                    else
-                        MyDebug.LogError($"STAGE 실패: {id} / {task.Exception}");
-                });
-                break;
-            case FirestoreDocument.Gacha:
-                GachaTable gachaTable = (GachaTable) data;
-                db.Collection("TABLE")
-                  .Document(FirestoreDocument.Gacha)
-                  .SetAsync(gachaTable)
-                  .ContinueWithOnMainThread(task =>
-                  {
-                      if (task.IsCompletedSuccessfully)
-                          MyDebug.Log($"업로드 성공:");
-                      else
-                          MyDebug.LogError($"업로드 실패:");
-                  });
-                break;
-            case FirestoreCollection.Unit:
-                UnitData unit = (UnitData) data;
-                id = unit.Code;
-                col.Document(id).SetAsync(unit).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"UNIT 업로드: {id}");
-                    else
-                        MyDebug.LogError($"UNIT 실패: {id} / {task.Exception}");
-                });
-                break;
-            case FirestoreCollection.Skill:
-                SkillData skill = (SkillData) data;
-                id = skill.Code;
-                col.Document(id).SetAsync(skill).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"SKILL 업로드: {id}");
-                    else
-                        MyDebug.LogError($"SKILL 실패: {id} / {task.Exception}");
-                });
-                break;
-            case FirestoreCollection.LevelUpExp:
-                LevelUpExpData levelUpExp = (LevelUpExpData) data;
-                id = levelUpExp.Level.ToString();
-                col.Document(id).SetAsync(levelUpExp).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"EXP 업로드: {id}");
-                    else
-                        MyDebug.LogError($"EXP 실패: {id} / {task.Exception}");
-                });
-                break;
-            case FirestoreCollection.Enhancement:
-                EnhancementData enhancement = (EnhancementData) data;
-                id = enhancement.EnhancementLevel.ToString();
-                col.Document(id).SetAsync(enhancement).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"Enhancement 업로드: {id}");
-                    else
-                        MyDebug.LogError($"Enhancement 실패: {id} / {task.Exception}");
-                });
-                break;
-            case FirestoreCollection.LimitBreak:
-                LimitBreakData limitBreak = (LimitBreakData) data;
-                id = limitBreak.Code;
-                col.Document(id).SetAsync(limitBreak).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"limitBreak 업로드: {id}");
-                    else
-                        MyDebug.LogError($"limitBreak 실패: {id} / {task.Exception}");
-                });
-                break;
-            case FirestoreCollection.Collection:
-                CollectionData collection = (CollectionData) data;
-                id = collection.Code;
-                col.Document(id).SetAsync(collection).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                        MyDebug.Log($"collection 업로드: {id}");
-                    else
-                        MyDebug.LogError($"collection 실패: {id} / {task.Exception}");
-                });
-                break;
-        }
-    }
-#endif
     /// <summary>
     /// 유저 account 계정 정보 저장
     /// </summary>
-    public static async Task UploadAccountData(AccountData account)
+    public static async Task UploadAccountDataAsync(AccountData account)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -157,7 +28,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 인벤토리 데이터 - 재화 전체 정보 저장
     /// </summary>
-    public static async Task SaveDataInventory(string uid, UserInventory inventory)
+    public static async Task SaveInventoryAsync(string uid, UserInventory inventory)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -170,7 +41,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 인벤토리 데이터 - 재화별 단건 저장
     /// </summary>
-    public static async Task UpdateInventoryCurrency(string uid, string fieldName, int amount)
+    public static async Task UpdateInventoryCurrencyAsync(string uid, string fieldName, int amount)
     {
         var db = FirebaseFirestore.DefaultInstance
                                 .Collection(FirestoreCollection.User)
@@ -190,7 +61,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 인벤토리 데이터 - 보유 아이템 단건 정보 저장
     /// </summary>
-    public static async Task SaveInventoryItem(string uid, InventoryItem item)
+    public static async Task SaveInventoryItemAsync(string uid, InventoryItem item)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -205,7 +76,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 인벤토리 데이터 - 보유 아이템 여러건 정보 저장
     /// </summary>
-    public static async Task SaveInventoryItemsBatch(string uid, List<InventoryItem> items)
+    public static async Task SaveInventoryItemsBatchAsync(string uid, List<InventoryItem> items)
     {
         WriteBatch batch = FirebaseFirestore.DefaultInstance.StartBatch();
         var db = FirebaseFirestore.DefaultInstance.Collection(FirestoreCollection.User)
@@ -226,7 +97,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 인벤토리 데이터 - 보유 아이템 여러개 삭제
     /// </summary>
-    public static async Task DeleteInventoryItemsBatch(string uid, List<InventoryItem> items)
+    public static async Task DeleteInventoryItemsBatchAsync(string uid, List<InventoryItem> items)
     {
         WriteBatch batch = FirebaseFirestore.DefaultInstance.StartBatch();
         
@@ -250,7 +121,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 인벤토리 데이터 - 보유 아이템 단건 삭제
     /// </summary>
-    public static async Task DeleteInventoryItem(string uid, string itemUid)
+    public static async Task DeleteInventoryItemAsync(string uid, string itemUid)
     {
         var db = FirebaseFirestore.DefaultInstance;
 
@@ -268,7 +139,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 인벤토리 데이터 - 유닛 아이템 단건 정보 저장
     /// </summary>
-    public static async Task SaveInventoryUnit(string uid, InventoryUnit unit)
+    public static async Task SaveInventoryUnitAsync(string uid, InventoryUnit unit)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -283,7 +154,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 레벨, 경험치 정보 전체 저장
     /// </summary>
-    public static async Task SaveDataUserInfo(string uid, UserInfo info)
+    public static async Task SaveDataUserInfoAsync(string uid, UserInfo info)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -296,7 +167,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 stage 진척 전보 최초1회 저장
     /// </summary>
-    public static async Task SaveDataUserStageInit(string uid, UserStage stage)
+    public static async Task SaveDataUserStageInitAsync(string uid, UserStage stage)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -309,21 +180,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 stage 진척 정보 단건 저장
     /// </summary>
-    public static async Task SaveUserStageInit(string uid, UserStage stage)
-    {
-        var db = FirebaseFirestore.DefaultInstance;
-        await db.Collection(FirestoreCollection.User)
-                .Document(uid)
-                .Collection(FirestoreCollection.Save)
-                .Document(FirestoreDocument.Stage)
-                .SetAsync(stage);
-    }
-
-    
-    /// <summary>
-    /// 유저 stage 진척 정보 단건 저장
-    /// </summary>
-    public static async Task SaveUserStageProgress(string uid, StageProgress progress)
+    public static async Task SaveUserStageProgressAsync(string uid, StageProgress progress)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -338,7 +195,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 도감 데이터 - 유닛 도감 최초1회 정보 저장
     /// </summary>
-    public static async Task SaveUserCollectedInit(string uid, UserCollected collected)
+    public static async Task SaveUserCollectedInitAsync(string uid, UserCollected collected)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -351,7 +208,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 도감 데이터 - 유닛 도감 단건 정보 저장
     /// </summary>
-    public static async Task SaveUserCollected(string uid, CollectionStatus status)
+    public static async Task SaveUserCollectedAsync(string uid, CollectionStatus status)
     {
         var db = FirebaseFirestore.DefaultInstance;
         await db.Collection(FirestoreCollection.User)
@@ -366,7 +223,7 @@ public class FirestoreUploader
     /// <summary>
     /// 유저 도감 데이터 - 유닛 도감 여러건 정보 저장
     /// </summary>
-    public static async Task SaveUserCollectedBatch(string uid, List<CollectionStatus> statusList)
+    public static async Task SaveUserCollectedBatchAsync(string uid, List<CollectionStatus> statusList)
     {
         WriteBatch batch = FirebaseFirestore.DefaultInstance.StartBatch();
         var db = FirebaseFirestore.DefaultInstance.Collection(FirestoreCollection.User)
@@ -387,7 +244,7 @@ public class FirestoreUploader
     /// <summary>
     /// 해당 UID에 대한 유저 계정 데이터가 Firestore에 존재하는지 확인
     /// </summary>
-    public static async Task<bool> CheckUserExists(string uid)
+    public static async Task<bool> CheckUserExistsAsync(string uid)
     {
         var db = FirebaseFirestore.DefaultInstance;
         var snapshot = await db.Collection(FirestoreCollection.User)

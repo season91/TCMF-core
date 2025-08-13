@@ -2,6 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+/// <summary>
+/// 도감 슬롯 클래스
+/// </summary>
 public class CollectionSlot
 {
     public CollectionStatus Status { get; private set; }
@@ -28,7 +31,7 @@ public class CollectionSlot
     public bool IsRewardClaimed => Status?.State == CollectionState.RewardClaimed;
 }
 /// <summary>
-/// 도감
+/// 도감 조회, 등록, 보상
 /// </summary>
 public class CollectionService
 {
@@ -82,7 +85,7 @@ public class CollectionService
     /// <summary>
     /// 도감 수집 정보 초기화 및 디폴트 정렬
     /// </summary>
-    public void InitializeCollectedDic()
+    public void Initialize()
     {
         collectedSlotDict.Clear();
         collectedSlotReadOnlyDict.Clear();
@@ -127,22 +130,23 @@ public class CollectionService
     /// <summary>
     /// 가챠 후 도감 등록 (단건)
     /// </summary>
-    public async Task<bool> TryCollect(ItemData itemData)
+    public async Task TryCollectAsync(ItemData itemData)
     {
         string itemCode = itemData.Code;
         // 마스터 도감데이터에 등록된 아이템인지 확인
         if (!itemCodeToCollectionCode.TryGetValue(itemCode, out var collectionCode))
         {
             MyDebug.LogWarning($"도감 등록 실패 - 등록되지 않은 itemCode: {itemCode}");
-            return false;
+            return;
         }
 
         // 이미 수집한 도감인지 확인 (HashSet 기반 O(1))
         if (collectedCodeSet.Contains(collectionCode))
         {
             MyDebug.Log($"이미 등록된 아이템 코두?: {itemCode}");
-            return false;
+            return;
         }
+        
         // 새로운 수집 상태 추가
         var newStatus = new CollectionStatus
         {
@@ -162,18 +166,17 @@ public class CollectionService
             slot.UpdateStatus(newStatus);
         }
         
-        await FirestoreUploader.SaveUserCollected(FirebaseManager.Instance.DbUser.UserId, newStatus);
-        MyDebug.Log("도감 등록 성공!");
+        await FirestoreUploader.SaveUserCollectedAsync(FirebaseManager.Instance.DbUser.UserId, newStatus);
         
         // 도감 갱신
         UpdateReadOnlyDic();
-        return true;
+        return;
     }
     
     /// <summary>
     /// 가챠 후 도감 등록 (여러건)
     /// </summary>
-    public async Task<bool> TryCollect(List<ItemData> itemDataList)
+    public async Task TryCollectAsync(List<ItemData> itemDataList)
     {
         List<CollectionStatus> statusList = new List<CollectionStatus>();
         
@@ -214,18 +217,17 @@ public class CollectionService
             statusList.Add(newStatus);
         }
         
-        await FirestoreUploader.SaveUserCollectedBatch(FirebaseManager.Instance.DbUser.UserId, statusList);
+        await FirestoreUploader.SaveUserCollectedBatchAsync(FirebaseManager.Instance.DbUser.UserId, statusList);
         MyDebug.Log("도감 등록 성공!");
         
         // 도감 갱신
         UpdateReadOnlyDic();
-        return true;
     }
 
     /// <summary>
-    /// 도감 보상 수령 시도
+    /// 도감 보상 지급 처리
     /// </summary>
-    public async Task<bool> TryRewardCollection(string collectionCode)
+    public async Task<bool> TryRewardCollectionAsync(string collectionCode)
     {
         CollectionSlot targetViewModel = null;
 
@@ -266,10 +268,8 @@ public class CollectionService
         await RewardManager.Instance.GrantRewards(rewards);
         MyDebug.Log($"도감 보상 지급 완료: {collectionCode}");
         
-        // UI 팝업처리
-
         // 5. 상태 저장
-        await FirestoreUploader.SaveUserCollected(FirebaseManager.Instance.DbUser.UserId, targetViewModel.Status);
+        await FirestoreUploader.SaveUserCollectedAsync(FirebaseManager.Instance.DbUser.UserId, targetViewModel.Status);
         MyDebug.Log($"도감 보상 상태 저장 완료: {collectionCode}");
 
         // 6. 유저 데이터 현행화
@@ -277,7 +277,10 @@ public class CollectionService
         return true;
     }
 
-    public List<RewardData> TryGetCollectionReward(string collectionCode)
+    /// <summary>
+    /// UI 지급할 보상 목록 확인
+    /// </summary>
+    public List<RewardData> GetComposeCollectionRewards(string collectionCode)
     {
         if (!MasterData.CollectionDataDict.TryGetValue(collectionCode, out var collectionData))
         {
