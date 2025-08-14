@@ -1,20 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public interface IBattleEffectFacade
-{
-    GameObject SpawnAttackEffect(CharacterBase attacker, CharacterBase target);
-    GameObject SpawnSkillEffect(CharacterBase caster, CharacterBase target);
-    GameObject SpawnStatusEffect(CharacterBase caster, CharacterBase target, StatusEffectType statusEffectType);
-    void LaunchProjectile(CharacterBase attacker, CharacterBase target);
-    void LaunchBossProjectile(CharacterBase attacker, CharacterBase target, bool isMainTarget);
-    void LaunchSkillProjectile(CharacterBase caster, CharacterBase target);
-    // 고수준 메서드들
-    void SpawnCompleteAttackSequence(CharacterBase attacker, CharacterBase target);
-    void SpawnSkillWithStatusEffect(CharacterBase caster, CharacterBase target, StatusEffectType status);
-}
-
+/// <summary>
+/// IBattleEffectFacade 구현체
+/// </summary>
 public class BattleEffectFacade : IBattleEffectFacade
 {
     private readonly EffectSpawner effectSpawner;
@@ -42,6 +30,7 @@ public class BattleEffectFacade : IBattleEffectFacade
     public void SpawnCompleteAttackSequence(CharacterBase attacker, CharacterBase target)
     {
         effectSpawner.SpawnAttackEffect(attacker, target);
+        //미구현 TODO : 카메라 흔들림 효과 + 사운드 재생 + 크리티컬 시 연출 (예상 구현)
     }
     
     public void SpawnSkillWithStatusEffect(CharacterBase caster, CharacterBase target, StatusEffectType status)

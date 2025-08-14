@@ -1,11 +1,21 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
+/// <summary>
+/// 전투관련 확장 메서드들을 모아놓은 클래스
+/// </summary>
 public static class BattleExtensions
 {
+    /// <summary>
+    /// 캐릭터별 스킬 딜레이 시간을 정의하는 딕셔너리
+    /// 
+    ///  특별한 딜레이가 필요한 캐릭터들
+    /// - Ruru: 분신 베기 스킬의 긴 애니메이션
+    /// - HappySeedling: 바람 소환의 다단 히트 이펙트 대기
+    /// - Boss1/Boss3: 이펙트 지속 시간 대기
+    /// - GuardianOfSilence: 디버프 적용 대기 시간
+    /// </summary>
     private static readonly Dictionary<string, float> SkillDelay = new()
     {
         { PlayerUnitCode.Ruru, BattleConfig.Instance.ruruSkillDelay },
@@ -15,6 +25,9 @@ public static class BattleExtensions
         { MonsterCode.GuardianOfSilence, BattleConfig.Instance.ruruSkillDelay }
     };
     
+    /// <summary>
+    /// 캐릭터 별 스킬 대기 시간 반환용 메서드
+    /// </summary>
     public static float GetSkillDelay(this CharacterBase caster)
     {
         string code = caster switch
@@ -27,6 +40,9 @@ public static class BattleExtensions
         return SkillDelay.TryGetValue(code, out float delay) ? delay : BattleConfig.Instance.skillDelay;
     }
     
+    /// <summary>
+    /// 캐릭터 유닛 코드 반환용 메서드
+    /// </summary>
     public static string GetCode(this CharacterBase caster)
     {
         return caster switch
@@ -37,6 +53,9 @@ public static class BattleExtensions
         };
     }
     
+    /// <summary>
+    /// 캐릭터의 스킬 사용 시 재생할 효과음 키를 반환하는 확장 메서드
+    /// </summary>
     public static string GetSkillSfxKey(this CharacterBase caster)
     {
         string code = caster.GetCode(); 
@@ -52,6 +71,7 @@ public static class BattleExtensions
                 _ => null
             };
         }
+        // 몬스터(일반 + 보스)의 경우
         return code switch
         {
             BossMonsterCode.Boss1 => StringAdrAudioSfx.SkillMons0003,
@@ -63,7 +83,7 @@ public static class BattleExtensions
             MonsterCode.GuardianOfSilence => StringAdrAudioSfx.SkillMons0008,
             MonsterCode.DontCryingDeer => StringAdrAudioSfx.SkillMons0009,
             MonsterCode.SilentHummingbird => StringAdrAudioSfx.SkillMons0010,
-            _ => null
+            _ => null // 매핑되지 않은 몬스터는 null 반환
         };
     }
     /// <summary>
@@ -92,8 +112,11 @@ public static class BattleExtensions
         {
             ProcessMonsterAttackEffects(monster, target);
         }
-        //여기에 추가 예정
+        // TODO: 플레이어 유닛의 기본 공격 특수 효과 추가 시 여기에서
     }
+    /// <summary>
+    /// 몬스터별 기본 공격 특수 효과를 처리하는 메서드
+    /// </summary>
     private static void ProcessMonsterAttackEffects(Monster monster, CharacterBase target)
     {
         switch (monster.MonsterData.Code)

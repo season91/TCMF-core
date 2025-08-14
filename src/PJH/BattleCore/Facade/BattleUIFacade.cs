@@ -1,34 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// UI 관련 Facade
-public interface IBattleUIFacade
-{
-    event Action<IReadOnlyList<Unit>> OnUpdateSkillCool;
-    event Action<Action> OnShowCurrentRound;
-    event Action<int> OnUpdateStageInfo;
-    event Action<int, Vector2> OnShowDamage;
-    event Action<int> OnStartUseSkillWaitingGUI;
-    event Action<int, bool> OnEndUseSkillWaitingGUI;
-    event Action<Vector2> OnMarkAsCurrentEntity;
-    event Action<int> OnHideDieUnitSkillButton;
-    event Action<bool> OnTargetSelectPromptShown;
-    event Action<int, float> OnUseSkillWaitingCool;
-    
-    void UpdateSkillCoolGUI(IReadOnlyList<Unit> units);
-    void UpdateRound(Action action);
-    void UpdateStageInfo(int roundNumber);
-    void UpdateShowDamage(int damage, Vector2 worldPosition);
-    void StartUseSkillWaitingGUI(int index);
-    void EndUseSkillWaitingGUI(int index, bool isUseSkill);
-    void UpdateMarkAsCurrentEntity(Vector2 worldPosition);
-    void UpdateHideDieUnitSkillButton(int index);
-    void UpdateTargetSelectPromptShown(bool isShown);
-    void UpdateUseSkillWaitingCool(int unitIndex, float timeRatio);
-}
-
+/// <summary>
+/// IBattleUIFacade 구현체
+/// </summary>
 public class BattleUIFacade : IBattleUIFacade
 {
     public event Action<IReadOnlyList<Unit>> OnUpdateSkillCool;
@@ -44,12 +20,23 @@ public class BattleUIFacade : IBattleUIFacade
     
     // =======================================================================
     
+    /// <summary>
+    /// 스킬 쿨타임 UI 업데이트 이벤트
+    /// - 쿨타임 잔여 턴수 표시
+    /// </summary>
     public void UpdateSkillCoolGUI(IReadOnlyList<Unit> units)
         => OnUpdateSkillCool?.Invoke(units);
     
+    /// <summary>
+    /// 라운드 시작 UI를 호출하는 이벤트
+    /// </summary>
     public void UpdateRound(Action action)
         => OnShowCurrentRound?.Invoke(action);
     
+    /// <summary>
+    /// 스테이지 정보 업데이트 이벤트
+    /// - 현재 라운드 / 총 라운드 표시
+    /// </summary>
     public void UpdateStageInfo(int roundNumber)
         => OnUpdateStageInfo?.Invoke(roundNumber);
     

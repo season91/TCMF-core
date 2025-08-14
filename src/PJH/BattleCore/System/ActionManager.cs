@@ -1,15 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 /// <summary>
 /// 기본 공격 및 스킬 사용하는 매니저
 /// 공격, 스킬 등 실제 액션 실행 (데미지 처리, 이펙트 호출 포함 가능)
-/// 유닛의 액션(기본 공격, 스킬 사용) 실행 담당
+/// 유닛, 몬스터의 액션(기본 공격, 스킬 사용) 실행 담당
 /// </summary>
 public class ActionManager
 {
@@ -18,8 +16,11 @@ public class ActionManager
     private bool isActionInProgress = false;
 
     private float moveSpeed => BattleConfig.Instance.moveSpeed;
+    //액션 간 간격
     private float actionInterval => BattleConfig.Instance.actionInterval;
+    //근접 공격시 타겟과의 거리
     private float offset => BattleConfig.Instance.meleeAttackOffset;
+    //외부에서 액션 진행 상태를 확인할 수 있는 프로퍼티
     public bool IsActionInProgress => isActionInProgress;
     
     private readonly IBattleServices battleServices;
@@ -30,35 +31,44 @@ public class ActionManager
     }
     
     /// <summary>
-    /// 유닛이 몬스터를 공격할 때  (수동 / 자동 모드 모두에서 사용)
+    /// 기본 공격을 실행하는 메인 메서드
+    /// 수동/자동 모드 모두에서 사용되며, 공격 타입(근접/원거리)에 따라 다른 시퀀스 실행
     /// </summary>
     public void ExecuteBasicAttack(CharacterBase attacker, CharacterBase target)
     {
         if (attacker == null || target == null) return;
-        
-        // 기존 시퀀스 정리
+
+        CleanupPreviousSequence();
+        isActionInProgress = true;
+        CreateAttackSequence(attacker, target);
+        FinalizeSequence(currentAttackSequence);
+    }
+    /// <summary>
+    /// 이전에 실행 중이던 공격 시퀀스를 정리
+    /// </summary>
+    private void CleanupPreviousSequence()
+    {
         if (currentAttackSequence != null && currentAttackSequence.IsActive())
         {
             currentAttackSequence.Kill();
         }
-        isActionInProgress = true;
-        
-        MyDebug.Log($"=== ExecuteBasicAttack 호출 ===");
-        
+    }
+    /// <summary>
+    /// 공격자의 공격 타입에 따라 적절한 공격 시퀀스를 생성
+    /// </summary>
+    private void CreateAttackSequence(CharacterBase attacker, CharacterBase target)
+    {
         currentAttackSequence = DOTween.Sequence();
-        
+    
         if (attacker.attackType == AttackType.Melee)
-        { 
             ExecuteMeleeAttack(currentAttackSequence, attacker, target);
-        }
         else
-        {
             ExecuteRangeAttack(currentAttackSequence, attacker, target);
-        }
-
-        FinalizeSequence(currentAttackSequence);
     }
 
+    /// <summary>
+    /// 근접 공격 액션
+    /// </summary>
     private void ExecuteMeleeAttack(Sequence sequence, CharacterBase attacker, CharacterBase target)
     {
         Vector3 originPos = attacker.transform.position;
@@ -80,6 +90,10 @@ public class ActionManager
         Move(sequence, attacker.transform,targetPos, originPos, false);
     }
 
+    /// <summary>
+    /// 원거리 공격 액션
+    /// 근접 공격과 달리 이동하지 않고 투사체를 발사
+    /// </summary>
     private void ExecuteRangeAttack(Sequence sequence, CharacterBase attacker, CharacterBase target)
     {
         sequence.AppendCallback(() =>
@@ -91,8 +105,11 @@ public class ActionManager
     }
     
     /// <summary>
-    /// 유닛이 스킬을 사용할 때 -수동 모드
+    /// 수동 모드에서 스킬을 사용하는 메서드
+    /// 유저가 직접 스킬 버튼을 클릭하고 타겟을 선택했을 때 호출
     /// </summary>
+    /// <param name="caster">스킬을 사용하는 유닛</param>
+    /// <param name="target">유저가 선택한 타겟 몬스터</param>
     public void ExecuteSkill(Unit caster, Monster target)
     {
         if (caster == null) return;
@@ -100,6 +117,7 @@ public class ActionManager
         isActionInProgress = true;
         
         // 스킬 데이터 기반으로 실제 타겟들 구하기
+        // 리팩토링 예정 REFACTOR : 유저 유닛 스킬이 다중타겟일 경우를 대비해 분기 처리했으나 현재 무용지물
         if (MasterData.SkillDataDict.TryGetValue(caster.UnitData.Code, out var skillData))
         {
             var manualTarget = new List<CharacterBase>();
@@ -118,6 +136,7 @@ public class ActionManager
     }
     
     /// <summary>
+    /// 자동 모드에서 스킬을 사용하는 메서드
     /// 스킬 데이터 기반 자동 타겟팅으로 스킬 실행 - 자동 모드
     /// </summary>
     public void ExecuteSkill(CharacterBase caster)
@@ -136,11 +155,12 @@ public class ActionManager
             return;
         }
         
+        //자동 타겟팅으로 타겟 선정
         var targets = battleServices.Targeting.GetSkillTargets(
             skillData, battleServices.Units.Cast<CharacterBase>().ToList(),
             battleServices.Monsters.Cast<CharacterBase>().ToList());
         
-        // 타겟 선택이 필요 없는 스킬 
+        // 타겟 선택이 필요 없는 스킬 ( 모모의 힐 스킬 )
         if (!caster.isSelectable)
         {
             // 스킬 컷인 코루틴에 스킬 발동 로직을 콜백으로 전달
@@ -166,12 +186,13 @@ public class ActionManager
 
     /// <summary>
     /// 컷인과 함께 스킬을 실행하는 통합 메서드
+    /// 유닛의 경우 컷인 애니메이션 후 스킬 발동, 몬스터는 바로 발동
     /// </summary>
     private void ExecuteSkillWithCutin(CharacterBase caster, CharacterBase target, List<CharacterBase> allTargets, Action onComplete = null)
     {
         if (caster is Unit unit)
         {
-            unit.PlayMeow();
+            unit.PlayMeow(); // 냥이 울음소리
             // 유닛인 경우 컷인 실행 후 스킬 발동
             battleServices.StartCoroutine(
                 UIManager.Instance.StartCutin(unit.UnitData.Code, () => 
@@ -203,14 +224,10 @@ public class ActionManager
         currentSkillSequence = DOTween.Sequence();
 
         if (caster.SkillData.SkillType == SkillType.Melee)
-        {
             ExecuteMeleeSkill(caster, target, allTargets);
-        }
         else if (caster.SkillData.SkillType == SkillType.Range)
-        {
             ExecuteRangeSkill(caster, allTargets);
-        }
-
+        
         FinalizeSequence(currentSkillSequence);
     }
 
@@ -231,62 +248,69 @@ public class ActionManager
         sequence.Append(character.DOMove(adjustedTarget, moveTime).SetEase(Ease.Linear));
     }
 
+    /// <summary>
+    /// 근접 스킬 시퀀스 
+    /// </summary>
     private void ExecuteMeleeSkill(CharacterBase caster, CharacterBase target, List<CharacterBase> allTargets)
     {
         Vector3 originPos = caster.transform.position;
         Vector3 targetPos = target?.transform.position ?? originPos;
         
+        //타겟으로 이동
         Move(currentSkillSequence, caster.transform, originPos, targetPos, true);
 
         currentSkillSequence.AppendCallback(() =>
         {
-            caster.UseSkill(allTargets);
+            caster.UseSkill(allTargets); //실제 스킬 실행
             battleServices.AnimationController.HitAnimation(target);
-            //if (caster is Unit) battleServices.UI.UpdateSkillCoolGUI(battleServices.Units);
         });
-
-        float delay = caster.GetSkillDelay();
-        currentSkillSequence.AppendInterval(delay);
-        DefaultDeathAnimation(currentSkillSequence, allTargets);
         
+        float delay = caster.GetSkillDelay(); //유닛코드별 스킬 대기시간
+        currentSkillSequence.AppendInterval(delay);
+        
+        DefaultDeathAnimation(currentSkillSequence, allTargets);
+        //복귀
         Move(currentSkillSequence, caster.transform, targetPos, originPos, false);
     }
+    
+    /// <summary>
+    /// 원거리 스킬 시퀀스
+    /// 움직이지 않고 제자리에서 스킬 사용
+    /// </summary>
     private void ExecuteRangeSkill(CharacterBase caster, List<CharacterBase> allTargets)
     {
         currentSkillSequence.AppendCallback(() =>
         {
-            caster.UseSkill(allTargets);
-            //if (caster is Unit) battleServices.UI.UpdateSkillCoolGUI(battleServices.Units);
+            caster.UseSkill(allTargets); //실제 스킬 실행
         });
         
-        float delay = caster.GetSkillDelay();
+        float delay = caster.GetSkillDelay(); //유닛코드별 스킬 대기시간
         currentSkillSequence.AppendInterval(delay);
     }
+    
     /// <summary>
     /// 보스의 전반적인 액션 ( 기본공격 + 스킬 )
+    /// 보스 턴 구성:
+    /// 1. 기본 공격 (단일/다중 타겟)
+    /// 2. 체력 조건 확인 후 스킬 사용 (선택적)
+    /// 3. 턴 종료 처리
     /// </summary>
     public void ExecuteBossAction(Monster monster)
     {
         if (!monster.isBoss || monster.currentStat[StatType.Hp] <= 0 || battleServices.Flow.CurrentState == BattleState.Lose) return;
         
+        // 공격할 유닛 타겟들 선정 (보스별 패턴에 따라 다름)
         List<Unit> targets = battleServices.Targeting.GetAttackTargets(battleServices.Units.ToList(), monster);
         
         SetActionInProgress(true);
-        
         Sequence bossTurnSequence = DOTween.Sequence();
-        Vector3 originPos = monster.transform.position;
-        
-        if (monster.attackType == AttackType.Range)
-        {
-            ExecuteRangeBossAttack(bossTurnSequence, monster, targets);
-        }
-        else if (monster.attackType == AttackType.Melee)
-        {
-            ExecuteMeleeBossAttack(bossTurnSequence, monster, targets, originPos);
-        }
+        //보스 기본 공격
+        ExecuteBossAttack(bossTurnSequence, monster, targets);
 
+        //기본공격 완료 후 스킬 확인 및 실행
         bossTurnSequence.AppendCallback(() =>
         {
+            // 플레이어가 전멸했으면 턴 종료
             if (battleServices.Flow.IsAllPlayersDead())
             {
                 SetActionInProgress(false);
@@ -300,7 +324,7 @@ public class ActionManager
             {
                 float delay = monster.GetSkillDelay();
                 
-                // 추가 대기 시퀀스 생성
+                // 스킬 대기 시간 후 턴 종료
                 DOVirtual.DelayedCall(delay,() =>
                 {
                     SetActionInProgress(false);
@@ -315,7 +339,30 @@ public class ActionManager
         
         bossTurnSequence.SetAutoKill(true);
     }
+
+    /// <summary>
+    /// 보스의 기본 공격을 실행
+    /// 보스의 공격 타입(근접/원거리)에 따라 다른 처리
+    /// </summary>
+    private void ExecuteBossAttack(Sequence sequence, Monster monster, List<Unit> targets)
+    {
+        Vector3 originPos = monster.transform.position;
+        
+        if (monster.attackType == AttackType.Range)
+        {
+            ExecuteRangeBossAttack(sequence, monster, targets);
+        }
+        else if (monster.attackType == AttackType.Melee)
+        {
+            ExecuteMeleeBossAttack(sequence, monster, targets, originPos);
+        }
+    }
     
+    /// <summary>
+    /// 보스의 원거리 공격 처리 (보스 1, 보스 3)
+    /// 보스3의 경우 스플릿 데미지 시스템 적용
+    /// REFACTOR : 너무 긴 메서드 -> 분리 필요
+    /// </summary>
     private void ExecuteRangeBossAttack(Sequence sequence, Monster monster, List<Unit> targets)
     {
         // 보스 3의 스플릿 데미지 처리
@@ -353,12 +400,14 @@ public class ActionManager
                 });
             }
         }
-
+        // 투사체 데미지 적용 대기 시간
         sequence.AppendInterval(BattleConfig.Instance.projectileDamageDelay);
-
-        //BossAttackDeathAnimation(sequence, targets);
     }
     
+    /// <summary>
+    /// 보스의 근접 공격 처리 --> 현재 보스 2만 해당
+    /// 가장 가까운 타겟으로 이동 후 타겟에게 동시 공격
+    /// </summary>
     private void ExecuteMeleeBossAttack(Sequence sequence, Monster monster, List<Unit> targets, Vector3 originPos)
     {
         if (targets.Count == 0) return;
@@ -378,8 +427,7 @@ public class ActionManager
                 battleServices.Effects.SpawnAttackEffect(monster, target);
                 battleServices.AnimationController.HitAnimation(target);
                 SoundManager.Instance.PlaySfx(StringAdrAudioSfx.AttackMons0007);
-                // 동시에 데미지 적용
-                ApplyDamage(monster, target);
+                ApplyDamage(monster, target); //동시에 데미지 적용
             }
         });
     
@@ -391,13 +439,16 @@ public class ActionManager
         Move(sequence, monster.transform, attackPosition, originPos, false);
         
         sequence.AppendInterval(actionInterval);
-        
+        //전투 종료 확인
         sequence.AppendCallback(() =>
         {
             battleServices.CheckBattleEnd();
         });
     }
     
+    /// <summary>
+    /// 시퀀스 마무리  
+    /// </summary>
     private void FinalizeSequence(Sequence sequence)
     {
         sequence.AppendInterval(actionInterval);
@@ -406,11 +457,17 @@ public class ActionManager
         sequence.SetAutoKill(true);
     }
 
+    /// <summary>
+    /// 액션 상태 bool 입력 
+    /// </summary>
     public void SetActionInProgress(bool value)
     {
         isActionInProgress = value;
     }
     
+    /// <summary>
+    /// 공격시 데미지 적용 + 기본공격 특수효과가 있다면 적용 ( 기본공격 시 확률로 중독 )
+    /// </summary>
     public void ApplyDamage(CharacterBase attacker, CharacterBase target)
     {
         int damage = attacker.DecreasedDamage();
@@ -420,6 +477,11 @@ public class ActionManager
 
         attacker.ProcessAttackEffects(target);
     }
+    /// <summary>
+    /// 스플릿 데미지 시스템을 처리하는 메서드
+    /// 메인 타겟은 풀 데미지, 나머지는 감소된 데미지를 받음
+    /// 보스 3의 경우 나머지는 10% TrueDamage로
+    /// </summary>
     public void ApplySplitDamage(CharacterBase attacker, CharacterBase target, bool isMainTarget)
     {
         // 보스 3 스플릿 데미지인 경우만 특별 처리
@@ -439,13 +501,10 @@ public class ActionManager
         }
     }
     
-    //SoundManager로 이동해야할듯
-    private void PlayRangeAttackSound(CharacterBase attacker)
-    {
-        string soundKey = attacker is Unit ? StringAdrAudioSfx.AttackRange : StringAdrAudioSfx.AttackMonster;
-        SoundManager.Instance.PlaySfx(soundKey);
-    }
-    #region  옮겨야 할 듯
+    /// <summary>
+    /// 리팩토링 예정 REFACTOR : 액션 매니저의 책임을 줄여야 함
+    /// </summary>
+    #region  사망 애니메이션, 사운드
     private void BossAttackDeathAnimation(Sequence sequence, List<Unit> targets)
     {
         sequence.AppendCallback(() =>
@@ -487,6 +546,12 @@ public class ActionManager
                 }
             }
         });
+    }
+   
+    private void PlayRangeAttackSound(CharacterBase attacker)
+    {
+        string soundKey = attacker is Unit ? StringAdrAudioSfx.AttackRange : StringAdrAudioSfx.AttackMonster;
+        SoundManager.Instance.PlaySfx(soundKey);
     }
 
     #endregion

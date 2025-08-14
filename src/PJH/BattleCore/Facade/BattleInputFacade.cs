@@ -1,14 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public interface IBattleInputFacade
-{
-    IEnumerator WaitForSkillInput(Unit unit, float waitTime);
-    void OnSkillButtonClick(int unitIndex);
-    void OnMonsterClicked(Monster clickedMonster);
-    void IsSkillUsed(bool value);
-}
+/// <summary>
+/// IBattleInputFacade 구현체
+/// </summary>
 public class BattleInputFacade : IBattleInputFacade
 {
     private readonly ManualInputHandler inputHandler;

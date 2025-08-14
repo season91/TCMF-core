@@ -1,28 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public interface IBattleFlowFacade
-{
-    BattleMode CurrentMode { get; }
-    BattleState CurrentState { get; }
-    bool IsDoubleSpeed { get; }
-    
-    void Initialize();
-    bool CheckBattleEnd();
-    bool IsBattleOver();
-    bool IsAllPlayersDead();
-    bool IsAllMonstersDead();
-    void ToggleBattleMode();
-    void ToggleSpeedMode();
-    void ResetSpeedMode();
-    void SetBattleState(BattleState newState);
-    event Action<BattleMode> OnModeChanged;
-    event Action<BattleState> OnStateChanged;
-    event Action<bool> OnSpeedChanged;
-}
+/// <summary>
+/// IBattleFlowFacade 구현체
+/// </summary>
 public class BattleFlowFacade : IBattleFlowFacade
 {
     private readonly IBattleServices battleServices;

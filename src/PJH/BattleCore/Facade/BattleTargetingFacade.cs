@@ -1,17 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IBattleTargetingFacade
-{
-    Monster SelectMonsterTarget();
-    Unit SelectUnitTarget();
-    List<Unit> GetAttackTargets(List<Unit> allUnits, Monster monster);
-    public Unit GetClosestTarget(List<Unit> targets, Vector3 originPos);
-    BossAttackPattern GetBossAttackPattern(string monsterCodeNumber);
-    List<CharacterBase> GetSkillTargets(SkillData skillData, List<CharacterBase> units, List<CharacterBase> monsters);
-}
-
+/// <summary>
+/// IBattleTargetingFacade 구현체
+/// </summary>
 public class BattleTargetingFacade : IBattleTargetingFacade
 {
     private readonly TargetingSystem targetingSystem;

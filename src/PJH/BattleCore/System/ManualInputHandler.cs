@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 /// <summary>
 /// 수동 모드일 때 유저 입력을 기다리고, 선택된 타겟에 따라 스킬을 실행하도록 위임함
-/// 수동 입력 대기
+/// 스킬 버튼 클릭 및 타겟 선택 입력 처리
+/// - isWatingForPlayerAction: 플레이어 턴에서 스킬 입력 대기 중
+/// - isWaitingForTarget: 스킬 버튼 클릭 후 타겟 선택 대기 중
+/// - onTargetSelected: 타겟 선택 완료 시 실행할 콜백
 /// </summary>
 public class ManualInputHandler : MonoBehaviour
 {
@@ -14,9 +16,10 @@ public class ManualInputHandler : MonoBehaviour
 
     private bool isWaitingForTarget = false; // 스킬버튼 클릭 후 적을 클릭할 수 있는 상황인지 아닌지
     private bool isWatingForPlayerAction = false; // 스킬 턴인지 아닌지 구분
+    private Action<Monster> onTargetSelected;
+    
     private Unit currentUnit;
     private int currentUnitIndex;
-    private Action<Monster> onTargetSelected;
 
     public void Initialize(IBattleServices services)
     {
@@ -35,10 +38,9 @@ public class ManualInputHandler : MonoBehaviour
         
         float lastAutoModeCheckTime = startTime;
         currentUnitIndex = battleServices.Units.ToList().IndexOf(currentUnit);
-        // battleServices.UI.UpdateTargetSelectPromptShown(true); // 스킬 선택 UI 표시 열기
-        // <= 평타 이후 스킬 사용을 알리는 메서드인 StartUseSkillWaitingGUI(unitIndex);
+
+        // 기본공격 이후 스킬 사용 가능을 알리는 메서드
         battleServices.UI.StartUseSkillWaitingGUI(currentUnitIndex);
-        // 스킬 눌렀을 때, 적 선택하라는 안내용 => 이동 해야함
         
         while (Time.time < endTime && isWatingForPlayerAction)
         {
@@ -52,13 +54,13 @@ public class ManualInputHandler : MonoBehaviour
                     isWatingForPlayerAction = false;
                     battleServices.UI.EndUseSkillWaitingGUI(currentUnitIndex, true);
                     battleServices.Input.IsSkillUsed(true);
-                    battleServices.UI.UpdateTargetSelectPromptShown(false); // 스킬 선택 UI 표시 닫기
                     yield break;
                 }
                 lastAutoModeCheckTime = Time.time;
             }
             float ratio = (Time.time - startTime) / waitTime;
             battleServices.UI.UpdateUseSkillWaitingCool(currentUnitIndex, ratio); 
+            
             yield return frameWait;
         }
 
@@ -71,14 +73,14 @@ public class ManualInputHandler : MonoBehaviour
             onTargetSelected?.Invoke(null); // null 전달하면 턴 넘어감
         }
         
-        battleServices.UI.UpdateTargetSelectPromptShown(false);  // 스킬 선택 UI 표시 닫기
-        
         currentUnit = null;
         isWaitingForTarget = false;
         onTargetSelected = null;
     }
     
-    // 역할: 유저가 스킬 버튼을 눌렀다는 신호만 전달
+    /// <summary>
+    /// 스킬 버튼 클릭 시 호출되는 이벤트 핸들러
+    /// </summary>
     public void OnSkillButtonClick(int unitIndex)
     {
         // 플레이어 액션 대기 중이 아니면 무시
@@ -114,6 +116,10 @@ public class ManualInputHandler : MonoBehaviour
         battleServices.Input.IsSkillUsed(true);
     }
 
+    /// <summary>
+    /// 스킬 실행 로직을 담당하는 메서드
+    /// 스킬의 타겟팅 방식에 따라 다른 처리 경로로 분기
+    /// </summary>
     private void ExecuteSkillAction(Unit unit, int index)
     {
         if (!MasterData.SkillDataDict.TryGetValue(unit.UnitData.Code, out var skillData))
@@ -122,9 +128,9 @@ public class ManualInputHandler : MonoBehaviour
             return;
         }
         
-        if (unit.isSelectable && skillData.TargetType == SkillTargetType.Single && skillData.TargetFilter == TargetFilter.Monster)
+        if (unit.isSelectable && skillData.TargetFilter == TargetFilter.Monster)
         {
-            // 단일 몬스터 타겟이 필요한 스킬만 수동 선택
+            // 타겟이 필요한 스킬만 수동 선택
             MyDebug.Log($"{unit.UnitName} 스킬 준비. 적을 선택하세요. (스킬 버튼 다시 클릭하면 취소)");
             StartTargetSelection(index);
         }
@@ -143,9 +149,15 @@ public class ManualInputHandler : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 타겟 선택 모드로 전환하는 메서드
+    /// 수동 타겟 선택이 필요한 스킬에서 호출됨
+    /// </summary>
     private void StartTargetSelection(int index)
     {
         isWaitingForTarget = true;
+        
+        // 타겟 선택 완료 시 실행할 콜백 설정
         onTargetSelected = (target) =>
         {
             if (target != null)
@@ -163,7 +175,9 @@ public class ManualInputHandler : MonoBehaviour
         };
     }
     
-    //스킬 사용 취소
+    /// <summary>
+    /// 스킬 사용을 취소하는 메서드
+    /// </summary>
      private void CancelSkill()
      {
          if (!isWaitingForTarget) return;
@@ -193,6 +207,10 @@ public class ManualInputHandler : MonoBehaviour
     }
 
     #region 리팩토링 필요
+    /// <summary>
+    /// 타겟 선택 안내 팝업을 표시하는 메서드
+    /// TODO: UI 의존성 분리 필요
+    /// </summary>
     private void ShowTargetSelectionPopup()
     {
         UIManager.Instance.Open<UISlidePopup>(
@@ -203,6 +221,9 @@ public class ManualInputHandler : MonoBehaviour
                 }
             ));
     }
+    /// <summary>
+    /// 타겟 선택 팝업을 닫는 메서드
+    /// </summary>
     private void CloseTargetSelectionPopup()
     {
         UIManager.Instance.Close<UISlidePopup>();

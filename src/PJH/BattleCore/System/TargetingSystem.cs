@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -41,7 +40,29 @@ public class TargetingSystem
 
         return GetBossTargets(aliveUnits, monster);
     }
-
+    
+    /// <summary>
+    /// 보스몬스터 코드에 따른 공격 패턴 설정
+    /// </summary>
+    public BossAttackPattern GetBossAttackPattern(string monsterCodeNumber)
+    {
+        // monsterCode에 따라 보스 패턴 결정
+        switch (monsterCodeNumber)
+        {
+            case BossMonsterCode.Boss1:
+                return BossAttackPattern.Sequential;    // 나비여왕
+            case BossMonsterCode.Boss2:
+                return BossAttackPattern.MultiTarget;    // 덤불뿌리
+            case BossMonsterCode.Boss3:
+                return BossAttackPattern.SplitDamage;      // 울음꽃
+            default:
+                throw new Exception("잘못된 보스몬스터 코드입니다.");
+        }
+    }
+    
+    /// <summary>
+    /// 보스몬스터 공격 패턴에 따른 타겟 설정
+    /// </summary>
     private List<Unit> GetBossTargets(List<Unit> aliveUnits, Monster monster)
     {
         return monster.bossAttackPattern switch
@@ -53,11 +74,13 @@ public class TargetingSystem
             _ => throw new Exception("잘못된 공격타입")
         };
     }
+    
+    /// <summary>
+    /// 전열(0) → 중열(1) → 후열(2) 순서로 공격
+    /// BattleManager.units의 인덱스 순서를 따름
+    /// </summary>
     private Unit GetSequentialTarget(List<Unit> units)
     {
-        // 전열(0) → 중열(1) → 후열(2) 순서로 공격
-        // BattleManager.units의 인덱스 순서를 따름
-        
         // 현재 인덱스부터 시작해서 살아있는 플레이어 찾기
         for (int i = 0; i < units.Count; i++)
         {
@@ -82,6 +105,9 @@ public class TargetingSystem
         return units.LastOrDefault();
     }
 
+    /// <summary>
+    /// 다중 타겟 설정
+    /// </summary>
     private List<T> GetMultiTargets<T>(List<T> aliveTargets, int count) where T : CharacterBase
     {
         List<T> targets = new List<T>();
@@ -107,6 +133,11 @@ public class TargetingSystem
     
         return targets;
     }
+    
+    /// <summary>
+    /// 스플릿 데미지 패턴을 위한 타겟 선택 
+    /// 메인 타겟 1명에게는 높은 데미지, 나머지 모든 대상에게는 감소된 데미지 적용
+    /// </summary>
     private List<Unit> GetSplitDamageTargets(List<Unit> aliveUnits)
     {
         List<Unit> targets = new List<Unit>();
@@ -131,22 +162,9 @@ public class TargetingSystem
         return targets;
     } 
     
-    public BossAttackPattern GetBossAttackPattern(string monsterCodeNumber)
-    {
-        // monsterCode에 따라 보스 패턴 결정
-        switch (monsterCodeNumber)
-        {
-            case BossMonsterCode.Boss1:
-                return BossAttackPattern.Sequential;    // 나비여왕
-            case BossMonsterCode.Boss2:
-                return BossAttackPattern.MultiTarget;    // 덤불뿌리
-            case BossMonsterCode.Boss3:
-                return BossAttackPattern.SplitDamage;      // 울음꽃
-            default:
-                throw new Exception("잘못된 보스몬스터 코드입니다.");
-        }
-    }
-    
+    /// <summary>
+    /// 다중 타겟일 경우 가까운 타겟을 찾기 위한 메서드
+    /// </summary>
     public Unit GetClosestTarget(List<Unit> targets, Vector3 originPos)
     {
         Unit closestTarget = targets[0];
@@ -195,7 +213,11 @@ public class TargetingSystem
 
         return aliveUnitList.LastOrDefault();
     }
-
+    
+    /// <summary>
+    /// List 타입을 받는 타겟 선택 메서드 (오버로드)
+    /// 내부적으로 IReadOnlyList 버전으로 캐스팅하여 동일한 로직 사용
+    /// </summary>
     public T SelectTarget<T>(List<T> unitList) where T : CharacterBase
     {
         return SelectTarget((IReadOnlyList<T>) unitList);
@@ -211,7 +233,8 @@ public class TargetingSystem
     }
     
     /// <summary>
-    /// targetType과 targetFilter를 통해 스킬 타겟 설정
+    /// 스킬 시스템과 연동하여 스킬 타입과 필터에 따른 대상 선택
+    /// 다양한 스킬의 타겟팅 요구사항을 통합적으로 처리
     /// </summary>
     public List<CharacterBase> SelectSkillTargets(SkillTargetType targetType, TargetFilter targetFilter,
         List<CharacterBase> units, List<CharacterBase> monsters)

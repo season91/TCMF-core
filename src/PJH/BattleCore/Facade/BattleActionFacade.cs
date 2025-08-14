@@ -1,17 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public interface IBattleActionFacade
-{
-    void ExecuteBasicAttack(CharacterBase attacker, CharacterBase target);
-    void ExecuteSkill(Unit caster, Monster monster);
-    void ExecuteSkill(CharacterBase caster);
-    void ExecuteBossAttack(Monster monster);
-    bool IsActionInProgress();
-    void SetActionInProgress(bool value);
-}
-
+/// <summary>
+/// IBattleActionFacade 구현체
+/// </summary>
 public class BattleActionFacade : IBattleActionFacade
 {
     private readonly ActionManager actionManager;
@@ -30,7 +19,7 @@ public class BattleActionFacade : IBattleActionFacade
     public void ExecuteSkill(CharacterBase caster)
         => actionManager.ExecuteSkill(caster);
     
-    public void ExecuteBossAttack(Monster monster)
+    public void ExecuteBossAction(Monster monster)
         => actionManager.ExecuteBossAction(monster);
     
     public bool IsActionInProgress()

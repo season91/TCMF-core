@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 배틀 관련 하드코딩 제거를 위한 SO
+/// 전투 관련 설정
+/// 전투 관련 하드코딩 제거를 위한 SO
 /// </summary>
 [CreateAssetMenu(fileName = "BattleConfig", menuName = "Config/Battle Config")]
 public class BattleConfig : ScriptableObject
@@ -127,6 +127,10 @@ public class BattleConfig : ScriptableObject
     [Tooltip("보스 스킬 이펙트 지속 시간")]
     public float hallucinationEffectDuration = 2.5f;
 
+    // REFACTOR : SO로 쓸꺼면 addressable로 가져와서 써야대고
+    // 진짜 싱글톤으로 쓸거면 SO를 싱글톤으로 쓰는건 좀 아닌것 같음!
+    // 둘 중 하나로 선택해서 리팩토링 필요
+    
     // 싱글턴 인스턴스
     private static BattleConfig _instance;
     public static BattleConfig Instance
