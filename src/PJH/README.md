@@ -34,11 +34,17 @@ Interface
       └── IBattleEffectFacade    // 이펙트 관리
 
  Facade
+ 
     - BattleActionFacade    // IBattleActionFacade 구현체
+    
     - BattleUIFacade        // IBattleUIFacade 구현체
+    
     - BattleTargetingFacade // IBattleTargetingFacade  구현체
+    
     - BattleFlowFacade      // IBattleFlowFacade 구현체
+    
     - BattleInputFacade     // IBattleInputFacade 구현체
+    
     - BattleEffectFacade    // IBattleEffectFacade 구현체
 
 2. **CharacterCore**
