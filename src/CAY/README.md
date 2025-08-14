@@ -10,7 +10,15 @@
 - 사용자 데이터 **저장·로드 구조** 설계 (문서 ID 규칙, 경로, 타입 매핑)
 - 최초 사용자 생성/닉네임 흐름, 중복 실행 방지(비동기 보호) 적용
 
-### 2) **InventoryCore**
+### 2) **GachaCore**
+- 가챠 전반 로직 관리: GachaManager에서 Draw → Pity → Transaction 전체 흐름 제어
+- 캐시 관리(**GachaCache**)
+- 뽑기 로직(**GachaDrawService**)
+- 천장 로직(**GachaPityService**)
+- 트랜잭션 처리(**GachaTransactionService**)
+- GA 로그 전송
+
+### 3) **InventoryCore**
 - 아이템 **지급/소모 로직** 및 재화 관리(**ResourceService**)
 - 장착/해제 시스템(**EquipmentInteractor**)
 - 정렬/필터 모듈(**InventoryFilterSorter**)
@@ -19,24 +27,24 @@
 - **인벤토리 캐싱/읽기 전용 뷰**(**InventoryCache**)로 GC 최소화
 - 유닛 관련 유틸(**UnitService**)
 
-### 3) **ObjectPoolCore**
+### 4) **ObjectPoolCore**
 - **재사용 가능한 오브젝트 풀** 시스템 설계·구현
 - Addressables 기반 **프리팹 로드 & 풀 초기화** 파이프라인
 
-### 4) **RewardCore**
+### 5) **RewardCore**
 - 스테이지/가챠/퀘스트 보상 등 **보상 지급 규칙** 모듈화
 
-### 5) **SceneCore**
+### 6) **SceneCore**
 - **씬 별 초기화 Manager** : 각 씬 별로 Setting할 부분 작성
 - **LobbyManager 리팩토링**: 로비 전담 책임만 유지, 가챠 관련 의존성 제거
 - (연계) **GachaManager & Services**: Draw/Pity/Transaction/Cache 분리로 **코드 가시성↑**, 버그 격리, 단위 테스트 용이
 
-### 6) **UICore (일부)**
+### 7) **UICore (일부)**
 - **카메라 흔들림**: Cinemachine **Impulse** + `CameraShaker`(싱글톤)로 전역 트리거
 - **컷인 연출**: **DOTween** `Sequence` 기반 타이밍/병렬 조합
 - **엔딩크레딧**: DOTween 기반 스크롤 & 페이드, 스킵 처리, 씬 전환 연동
 
-### 7) **URPCore**
+### 8) **URPCore**
 - **URP 전환**(에셋 호환성 & 커스텀 렌더링 확장 대비)
 - **ForceClearFeature**(ScriptableRendererFeature): `BeforeRendering` 단계에서 **Color/Depth 버퍼 강제 클리어**
 - 설정은 **URP.asset**에 등록하여 **전역 적용** (모든 카메라 공통)
