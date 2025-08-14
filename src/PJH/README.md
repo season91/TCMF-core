@@ -5,7 +5,7 @@
 
 ## 📌 담당 기능
 1. **BattleCore**
-
+ System
    - BattleManager: 전투 전체 흐름 제어 및 서비스 통합
    
    - ActionManager: 공격, 스킬 실행 및 시퀀스 관리
@@ -18,7 +18,7 @@
    
    - Facade 패턴: 복잡한 전투 시스템을 단순한 인터페이스로 추상화
 ![battle_flow_facade_v4_5_aligned](https://github.com/user-attachments/assets/32b21b82-98cd-41fd-9f0d-fa4fbe8aff1a)
-
+Interface
      IBattleServices
    
       ├── IBattleActionFacade    // 액션 실행
@@ -33,7 +33,15 @@
    
       └── IBattleEffectFacade    // 이펙트 관리
 
-3. **CharacterCore**
+ Facade
+    - BattleActionFacade    // IBattleActionFacade 구현체
+    - BattleUIFacade        // IBattleUIFacade 구현체
+    - BattleTargetingFacade // IBattleTargetingFacade  구현체
+    - BattleFlowFacade      // IBattleFlowFacade 구현체
+    - BattleInputFacade     // IBattleInputFacade 구현체
+    - BattleEffectFacade    // IBattleEffectFacade 구현체
+
+2. **CharacterCore**
  
    - CharacterBase: 모든 캐릭터의 공통 기능 정의
    
@@ -43,7 +51,7 @@
    
    - StatusEffectController: 버프/디버프 상태효과 관리 시스템
 
-5. **EffectCore**
+3. **EffectCore**
  
    - Effect: 이펙트 생명주기 및 풀 반환
    
@@ -52,6 +60,17 @@
    - EffectSpawner: 전투 상황별 이펙트 배치 및 설정
    
    - ProjectileLauncher: 투사체 발사 및 궤적 처리
+  
+   - VibrationManager : 피격 시 모바일 기기 진동 효과
+  
+4. **GachaCore**
+
+   - 초기 로직 개발
+  
+5. **SoundCore**
+
+   - SoundManager : 게임 전반의 오디오 시스템 통합 관리
+   
   
 ⚙️ 핵심 기능
 
