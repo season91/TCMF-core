@@ -34,6 +34,8 @@ tcmf-core/
 - **코드 원칙**: 단일 책임, 디버그 테스트 후 PR
 - **리소스 관리**: GC 최소화, 컬렉션 재사용, 불필요한 동적 할당 지양  
 - **의존성 관리**: 외부 SDK는 필요한 경우에만 모듈 내부에 국한하여 사용
+- [UI 컨벤션 노션](https://www.notion.so/UI-Convention-218015673c55813bb0a2c2bb850b6845) / [코드 컨벤션 노션](https://www.notion.so/Code-Convention-218015673c5581be8677fd2ecc8e42a5) / [깃 컨벤션 노션](https://www.notion.so/Github-Rules-218015673c5581039c0ef9a46d977295)
+
 
 ---
 
