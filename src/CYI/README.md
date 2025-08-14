@@ -23,7 +23,7 @@
    - UIBase/UIPopupBase로 초기화·열기/닫기·애니메이션 표준화, 제네릭 Open<T>() 지원
    - UIManager 중앙집중 관리: 등록/조회/상태, 팝업 Queue, 로딩 진행도 갱신
    - 씬 전환 연계(SceneLoadController): 전환 전 정리 → Addressables 로드/언로드 → UI 재초기화
-   - **구조화된 디렉토리(0.Core~6.Widget)**와 Addressables 프리팹 캐싱으로 확장성·성능 확보
+   - 구조화된 디렉토리(0.Core~6.Widget)와 Addressables 프리팹 캐싱으로 확장성·성능 확보
    - 동적 오브젝트 풀(UIDynamicObjectPool): 제네릭 기반 재사용 구조로 UI·게임 오브젝트 GC 최소화 및 프레임 안정성 향상
 
 ### 5) **GachaCore**
