@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using UnityEngine;
 
 /// <summary>
 /// 인벤토리 재화 처리 전담 서비스
@@ -9,12 +8,6 @@ using UnityEngine;
 /// </summary>
 public class ResourceService
 {
-    private readonly InventoryCache cache;
-    public ResourceService(InventoryCache cache)
-    {
-        this.cache = cache;
-    }
-        
     /// <summary>
     /// 재화 보유량이 충분한지 확인
     /// </summary>
@@ -61,6 +54,6 @@ public class ResourceService
     private async Task UpdateResourceAsync(ResourceType type)
     {
         UIManager.Instance.UpdateUserResource(type);
-        await UserData.inventory.UpdateInventoryResource(type);
+        await UserData.inventory.UpdateInventoryResourceAsync(type);
     }
 }

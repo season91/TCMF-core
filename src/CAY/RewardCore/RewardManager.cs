@@ -1,11 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
-
-/// <summary>
-/// 보상만 주는 역할
-/// </summary>
 
 public enum RewardType
 {
@@ -18,6 +13,9 @@ public enum RewardType
     Unit // 고양이 보상 1회
 }
 
+/// <summary>
+/// 지급할 보상 정보를 담는 클래스
+/// </summary>
 [Serializable]
 public class RewardData
 {
@@ -27,15 +25,18 @@ public class RewardData
     public bool isFirstClearOnly = false;
 }
 
+/// <summary>
+/// 보상 전담 매니저
+/// </summary>
 public class RewardManager : Singleton<RewardManager>
 {
     protected override bool ShouldDontDestroyOnLoad => true;
     private StageRewardService stageRewardService;
 
-    #region 스테이지 보상
+    #region 스테이지 보상 지급 로직
     
     /// <summary>
-    /// 스테이지 클리어 보상, 지급한 목록 반환? 
+    /// 지급할 보상 목록기준으로 실제 지급 절차 진행
     /// </summary>
     public async Task GrantRewards(List<RewardData> rewards)
     {
@@ -105,6 +106,9 @@ public class RewardManager : Singleton<RewardManager>
 
     #endregion
 
+    /// <summary>
+    /// 스테이지 승리시 보상 목록 구성
+    /// </summary>
     public List<RewardData> ComposeVictoryRewards()
     {
         var stageData = StageManager.Instance.GetCurrentStageData();
@@ -114,6 +118,9 @@ public class RewardManager : Singleton<RewardManager>
         return rewardService.ComposeVictoryRewards(progress);
     }
     
+    /// <summary>
+    /// 스테이지 실패시 보상 목록 구성
+    /// </summary>
     public List<RewardData> ComposeFailureRewards()
     {
         var stageData = StageManager.Instance.GetCurrentStageData();
@@ -122,12 +129,18 @@ public class RewardManager : Singleton<RewardManager>
         return rewardService.ComposeFailureRewards();
     }
 
+    /// <summary>
+    /// 레벨업 보상 목록 구성
+    /// </summary>
     public List<RewardData> ComposeLevelUpRewards()
     {
         var rewardService = new StageRewardService();
         return rewardService.ComposeLevelUpRewards();
     }
     
+    /// <summary>
+    /// 도감 보상 목록 구성
+    /// </summary>
     public List<RewardData> ComposeCollectionRewards(CollectionData collectionData)
     {
         var rewardService = new StageRewardService();

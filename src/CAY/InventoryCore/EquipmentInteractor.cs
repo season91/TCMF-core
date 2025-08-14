@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-
 /// <summary>
 /// UI 요청에 따른 장착 처리기
 /// </summary>
@@ -61,7 +60,7 @@ public class EquipmentInteractor
     /// <summary>
     /// 특정 슬롯의 아이템 장착 해제 시도, UI에서 호출
     /// </summary>
-    public async Task TryUnEquip(int slotIndex, ItemType itemType)
+    public async Task TryUnEquipAsync(int slotIndex, ItemType itemType)
     {
         this.equipItem = cache.GetItemBySlotIndex(slotIndex, itemType);
         if (equipItem == null)
@@ -135,8 +134,8 @@ public class EquipmentInteractor
         MyDebug.Log($"ItemCode: {equipItem.ItemUid}, 장착 유닛: {curUnit.UnitUid}");
         
         string uid = FirebaseManager.Instance.DbUser.UserId;
-        await FirestoreUploader.SaveInventoryItem(uid, equipItem);
-        await FirestoreUploader.SaveInventoryUnit(uid, curUnit);
+        await FirestoreUploader.SaveInventoryItemAsync(uid, equipItem);
+        await FirestoreUploader.SaveInventoryUnitAsync(uid, curUnit);
         
         completeAction?.Invoke();
     }
@@ -153,7 +152,7 @@ public class EquipmentInteractor
         var unit = cache.GetUnitByItemUid(itemUid);
         if (unit != null && unit.equippedItemUids.Remove(itemUid))
         {
-            await FirestoreUploader.SaveInventoryUnit(uid, unit);
+            await FirestoreUploader.SaveInventoryUnitAsync(uid, unit);
             MyDebug.Log($"[UnEquip] {itemUid} → 유닛 {unit.UnitUid}에서 제거 완료");
         }
 
@@ -162,21 +161,14 @@ public class EquipmentInteractor
 
         // 매핑 갱신
         cache.UpdateItemToUnitMapping(itemUid, null);
-
         
-        await FirestoreUploader.SaveInventoryItem(uid, unequipItem);
+        await FirestoreUploader.SaveInventoryItemAsync(uid, unequipItem);
         MyDebug.Log($"[UnEquip] {itemUid} 장착 해제 저장 완료");
     }
     
     /// <summary>
-    /// 슬롯 인덱스 기준 해당 아이템이 장착된 유닛 반환
+    /// 장착 해제 이벤트 등록할 함수
     /// </summary>
-    public InventoryUnit GetUnitEquipped(int slotIndex)
-    {
-        InventoryItem slotItem = UserData.inventory.Items[slotIndex];
-        return cache.GetUnitByItemUid(slotItem.ItemUid);
-    }
-    
     private async void OnUnEquipAndEquip()
     {
         try
@@ -187,19 +179,6 @@ public class EquipmentInteractor
         {
             MyDebug.LogError($"UnEquipAndEquipAsync() 예외 발생: {ex}");
         }
-    }
-
-    /// <summary>
-    /// 본인이 장착하고 있는 아이템인지 판단
-    /// </summary>
-    public bool IsEquippedBySelectUnit(int slotIndex, ItemType itemType, int unitIndex)
-    {
-        // unitIndex는 db상 unit의 인덱스임 비교대상
-        var slotItem = cache.GetItemBySlotIndex(slotIndex, itemType);
-
-        InventoryUnit selectUnit =  UserData.inventory.Units[unitIndex];
-
-        return slotItem.EquippedUnitUid == selectUnit.UnitUid;
     }
     
     /// <summary>

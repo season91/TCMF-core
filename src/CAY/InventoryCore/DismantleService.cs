@@ -17,6 +17,9 @@ public class DismantleService
         this.resourceService = resourceService;
     }
     
+    /// <summary>
+    /// UI에 경고 메시지 출력
+    /// </summary>
     private void ShowWarning(string message)
     {
         var context = new SlideOpenContext { Comment = message };
@@ -26,8 +29,7 @@ public class DismantleService
     /// <summary>
     /// 분해 시도
     /// </summary>
-    // 분해 시도
-    public async Task<bool> TryDismantle(InventoryItem item)
+    public async Task TryDismantleAsync(InventoryItem item)
     {
         dismantleItem = item;
         
@@ -35,13 +37,13 @@ public class DismantleService
         if (item == null)
         {
             MyDebug.LogWarning("분해 실패: 아이템이 존재하지 않음");
-            return false;
+            return;
         }
 
         if (!TryGetDismantleData(dismantleItem, out var dismantleData))
         {
             MyDebug.LogError($"분해 실패: 마스터 데이터에 해당 희귀도({dismantleItem.Rarity}) 정보 없음");
-            return false;
+            return;
         }
         
         // 아이템 소모 처리
@@ -49,10 +51,11 @@ public class DismantleService
         
         // 리소스 지급 처리
         await resourceService.AddAsync(dismantleData.ResourceType, dismantleData.Amount);
-        MyDebug.Log($"[Dismantle] {dismantleItem.ItemCode} 분해 완료 → {dismantleData.ResourceType} x{dismantleData.Amount}");
-        return true;
     }
 
+    /// <summary>
+    /// 마스터데이터에 해당 조건 데이터가 있는지 확인
+    /// </summary>
     public bool TryGetDismantleData(InventoryItem item, out ItemDismantleData dismantleData)
     {
         // 마스터 데이터에서 분해 기준 정보 가져오기

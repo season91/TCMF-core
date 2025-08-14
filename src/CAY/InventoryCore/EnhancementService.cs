@@ -58,7 +58,7 @@ public class EnhancementService
     /// <summary>
     /// 강화 시작
     /// </summary>
-    public async Task<bool> StartEnhancement()
+    public async Task<bool> StartEnhancementAsync()
     {
         if (curItem == null || curData == null)
         {
@@ -77,7 +77,7 @@ public class EnhancementService
         if (isSuccess)
         {
             MyDebug.Log("강화 성공");
-            await ApplyEnhancementSuccess();
+            await ApplyEnhancementSuccessAsyn();
         }
         else
         {
@@ -117,11 +117,11 @@ public class EnhancementService
     /// <summary>
     /// 강화 성공 처리
     /// </summary>
-    private async Task ApplyEnhancementSuccess()
+    private async Task ApplyEnhancementSuccessAsyn()
     {
         curItem.enhancementLevel = curItem.EnhancementLevel + 1;
         curItem.BindingSumStat();
-        await FirestoreUploader.SaveInventoryItem(FirebaseManager.Instance.DbUser.UserId, curItem);
+        await FirestoreUploader.SaveInventoryItemAsync(FirebaseManager.Instance.DbUser.UserId, curItem);
         MyDebug.Log($"강화 성공 → 레벨: {curItem.EnhancementLevel}");
     }
 }

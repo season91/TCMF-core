@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CutInUI : UIBase
+public class UICutIn : UIBase
 {
     [Header("====[Skill Cutin Info]")]
     [SerializeField] private CanvasGroup canvasGroupSkillCutin;
@@ -44,9 +43,11 @@ public class CutInUI : UIBase
         initPosSlashTop = imgSlashTop.rectTransform.anchoredPosition;
     }
 
-    public IEnumerator PlaySkillCutin()
+    /// <summary>
+    /// 컷인 연출 재생
+    /// </summary>
+    public IEnumerator Play()
     {
-        MyDebug.Log("PlaySkillCutin");
         gameObject.SetActive(true);
         canvasGroup.SetAlpha(1);
         
@@ -98,17 +99,18 @@ public class CutInUI : UIBase
         yield return cutinSequence.WaitForCompletion();
     }
 
+    /// <summary>
+    /// 컷인 종료 처리
+    /// </summary>
     public void Hide()
     {
         cutinSequence?.Kill(true);
         canvasGroup.SetAlpha(0);
-        // gameObject.SetActive(false);
     }
 
     /// <summary>
     /// 이미지 교체
     /// </summary>
-    /// <param name="unitCode"></param>
     public void ReplaceImg(string unitCode)
     {
         MyDebug.Log("ReplaceImg "+ unitCode);

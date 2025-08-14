@@ -8,7 +8,7 @@ public enum PoolCategory
     Effect,
 }
 /// <summary>
-/// 프리팹 풀링 전용 매니저 (리소스는 외부에서 미리 로드됨)
+/// 오브젝트 풀링 전용 매니저 (리소스는 외부에서 미리 로드됨)
 /// </summary>
 public class ObjectPoolManager : Singleton<ObjectPoolManager>
 {
@@ -42,11 +42,6 @@ public class ObjectPoolManager : Singleton<ObjectPoolManager>
             poolCategoryDict = new Dictionary<string, Queue<GameObject>>();
             poolDict[category] = poolCategoryDict;
         }
-
-        // 프리팹이 이미 등록되어 있다면 중복 등록 방지
-        // 값이 필요 없고 존재 여부만 체크할 땐 ContainsKey를 사용
-        // TryGetValue를 해도 되긴 하지만 있으면 값을 같이 쓸 때 가장 적합하고 불필요하게 value 까지 찾게 됨
-        // 반복 호출도 아니고 값도 미사용하니까 ContainsKey가 명확하고 적절
 
         // 프리팹과 빈 큐 등록
         prefabCategoryDict[key] = prefab;
@@ -149,11 +144,5 @@ public class ObjectPoolManager : Singleton<ObjectPoolManager>
         // 오브젝트 비활성화 후 큐에 재삽입
         obj.SetActive(false);
         objectQueue.Enqueue(obj);
-    }
-
-    public void Clear()
-    {
-        prefabDict.Clear();
-        poolDict.Clear();
     }
 }

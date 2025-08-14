@@ -17,7 +17,7 @@ public class ItemService
     /// UserData.inventory.Items를 초기화하는 메서드
     /// BindingItemData, BindingSumStat 호출 후 Cache에 등록함
     /// </summary>
-    public void InitializeItems()
+    public void Initialize()
     {
         foreach (var item in UserData.inventory.Items)
         {
@@ -77,10 +77,10 @@ public class ItemService
         cache.AddItem(item);
         
         // 업로드
-        await FirestoreUploader.SaveInventoryItem(FirebaseManager.Instance.DbUser.UserId, item);
+        await FirestoreUploader.SaveInventoryItemAsync(FirebaseManager.Instance.DbUser.UserId, item);
         
         // 도감 등록 및 갱신
-        await InventoryManager.Instance.CollectionService.TryCollect(itemData);
+        await InventoryManager.Instance.CollectionService.TryCollectAsync(itemData);
         
         return true;
     }
@@ -108,10 +108,10 @@ public class ItemService
         }
 
         // 업로드
-        await FirestoreUploader.SaveInventoryItemsBatch(FirebaseManager.Instance.DbUser.UserId, validItems);
+        await FirestoreUploader.SaveInventoryItemsBatchAsync(FirebaseManager.Instance.DbUser.UserId, validItems);
                 
         // 도감 등록 및 갱신
-        await InventoryManager.Instance.CollectionService.TryCollect(drawResults);
+        await InventoryManager.Instance.CollectionService.TryCollectAsync(drawResults);
         
         return true;
     }
@@ -123,7 +123,7 @@ public class ItemService
     {
         UserData.inventory.RemoveItem(item);
         cache.RemoveItem(item);
-        await FirestoreUploader.DeleteInventoryItem(FirebaseManager.Instance.DbUser.UserId, item.ItemUid);
+        await FirestoreUploader.DeleteInventoryItemAsync(FirebaseManager.Instance.DbUser.UserId, item.ItemUid);
     }
     
     /// <summary>
@@ -136,7 +136,7 @@ public class ItemService
             UserData.inventory.RemoveItem(item);
             cache.RemoveItem(item);
         }
-        await FirestoreUploader.DeleteInventoryItemsBatch(FirebaseManager.Instance.DbUser.UserId, items);
+        await FirestoreUploader.DeleteInventoryItemsBatchAsync(FirebaseManager.Instance.DbUser.UserId, items);
     }
 
     /// <summary>

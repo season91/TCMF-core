@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using System.Threading.Tasks;
 
 /// <summary>
 /// 유닛 관련 로직을 담당하는 서비스 클래스
@@ -21,7 +18,7 @@ public class UnitService
     /// UserData.inventory.Units를 초기화하는 메서드
     /// 스탯 바인딩 및 itemUid → unit 캐시 등록
     /// </summary>
-    public void InitializeUnits()
+    public void Initialize()
     {
         // 유닛 캐시 초기화
         foreach (var unit in UserData.inventory.Units)
@@ -48,7 +45,7 @@ public class UnitService
 
         string uid = FirebaseManager.Instance.DbUser.UserId;
 
-        await FirestoreUploader.SaveInventoryUnit(uid, unit);
+        await FirestoreUploader.SaveInventoryUnitAsync(uid, unit);
 
         UserData.inventory.AddUnit(unit);
 
@@ -63,11 +60,4 @@ public class UnitService
         }
     }
 
-    /// <summary>
-    /// 아이템 UID에 유닛 바인딩 (장비 장착 시 사용)
-    /// </summary>
-    public void BindItemToUnit(string itemUid, InventoryUnit unit)
-    {
-        cache.UpdateItemToUnit(itemUid, unit);
-    }
 }

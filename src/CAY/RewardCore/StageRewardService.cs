@@ -16,7 +16,7 @@ public class StageRewardService
     }
 
     /// <summary>
-    /// 보상 구성
+    /// 스테이지 승리 보상 구성
     /// </summary>
     public List<RewardData> ComposeVictoryRewards(StageProgress progress)
     {
@@ -36,6 +36,9 @@ public class StageRewardService
         return rewards;
     }
 
+    /// <summary>
+    /// 레벨업 보상 구성
+    /// </summary>
     public List<RewardData> ComposeLevelUpRewards()
     {
         var rewards = new List<RewardData>();
@@ -48,6 +51,10 @@ public class StageRewardService
 
         return rewards;
     }
+    
+    /// <summary>
+    /// 도감 보상 구성
+    /// </summary>
     public List<RewardData> ComposeCollectionRewards(CollectionData collectionData)
     {
         var rewards = new List<RewardData>();
@@ -61,6 +68,9 @@ public class StageRewardService
         return rewards;
     }
     
+    /// <summary>
+    /// 스테이지 실패 보상 구성
+    /// </summary>
     public List<RewardData> ComposeFailureRewards()
     {
         var list = new List<RewardData>();
@@ -85,15 +95,15 @@ public class StageRewardService
 
     /// <summary>
     /// 스테이지 보상 타입 enum 파싱
+    /// 보상 타입 문자열 → RewardType enum
     /// </summary>
-    // 보상 타입 문자열 → RewardType enum
     private RewardType ParseRewardType(string str)
     {
         return Enum.TryParse(str, true, out RewardType result) ? result : RewardType.Gold;
     }
     
     /// <summary>
-    /// 확정 보상 (매 클리어 시 확정 지급)
+    /// 확정 보상 (매 클리어 시 확정 지급) 목록 List로 파싱
     /// </summary>
     private List<RewardData> ParseFixedRewards()
     {
@@ -116,7 +126,7 @@ public class StageRewardService
     }
     
     /// <summary>
-    /// 랜덤 보상 (매 클리어 시 확률 지급)
+    /// 랜덤 보상 (매 클리어 시 확률 지급) 목록 List 파싱
     /// </summary>
     private List<RewardData> ParseRandomRewards()
     {
@@ -144,7 +154,7 @@ public class StageRewardService
     }
     
     /// <summary>
-    /// 1회성 보상
+    /// 1회성 보상 목록 List 파싱
     /// </summary>
     private List<RewardData> ParseFirstClearRewards()
     {

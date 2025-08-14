@@ -31,7 +31,7 @@ public class LimitBreakService
     /// <summary>
     /// 돌파 시도
     /// </summary>
-    public async Task<bool> TryLimitBreak(InventoryItem item)
+    public async Task<bool> TryLimitBreakAsync(InventoryItem item)
     {
         // 돌파 레시피 가져오기 
         if (!TryGetLimitBreakData(item, out var limitBreakData))
@@ -49,7 +49,7 @@ public class LimitBreakService
         }
 
         // 재료 아이템 확인
-        if (!TryGetItemsToConsume(item, limitBreakData, out var itemsToConsume))
+        if (!CanItemsToConsume(item, limitBreakData, out var itemsToConsume))
         {
             MyDebug.LogWarning("필요한 아이템 수량이 부족합니다.");
             ShowWarning(MsgNoItem);
@@ -61,7 +61,7 @@ public class LimitBreakService
         await itemService.ConsumeItemsAsync(itemsToConsume);
         
         // 성공 처리
-        await ApplyLimitBreakSuccess(item);
+        await ApplyLimitBreakSuccessAsync(item);
 
         MyDebug.Log($"아이템 돌파 완료! 새로운 레벨: {limitBreakData.LimitBreakLevel}");
         
@@ -69,7 +69,7 @@ public class LimitBreakService
     }
 
     /// <summary>
-    /// 레시피 조회 (재료는 강화/돌파 없는 상태만 허용)
+    /// 조건에 맞는 레시피가 있는지 판단 (재료는 강화/돌파 없는 상태만 허용)
     /// </summary>
     public bool TryGetLimitBreakData(InventoryItem item, out LimitBreakData limitBreakData)
     {
@@ -93,16 +93,11 @@ public class LimitBreakService
     }
 
     /// <summary>
-    /// 소모할 재료 아이템 확보
+    /// 소모할 재료 아이템 확인
     /// </summary>
-    private bool TryGetItemsToConsume(InventoryItem item, LimitBreakData data, out List<InventoryItem> itemsToConsume)
+    private bool CanItemsToConsume(InventoryItem item, LimitBreakData data, out List<InventoryItem> itemsToConsume)
     {
         // GetItemsByCode 한 번만 호출
-        // 강화나 돌파 횟수가 0인 아이템만
-        // var availableItems = itemService.GetItemsByCode(item.ItemCode)
-        //                                 .Where(i => i.ItemUid != item.ItemUid && i.LimitBreakLevel == 0 && i.EnhancementLevel == 0)
-        //                                 .ToList();
-
         var materialItems = itemService.GetMaterialItem(item.ItemType, item.ItemCode, item.ItemUid);
 
         // 재료 아이템이 충분한지 체크
@@ -121,11 +116,11 @@ public class LimitBreakService
     /// <summary>
     /// 돌파 성공 처리
     /// </summary>
-    private async Task ApplyLimitBreakSuccess(InventoryItem item)
+    private async Task ApplyLimitBreakSuccessAsync(InventoryItem item)
     {
         item.limitBreakLevel = item.LimitBreakLevel + 1;
         item.BindingSumStat();
-        await FirestoreUploader.SaveInventoryItem(FirebaseManager.Instance.DbUser.UserId, item);
+        await FirestoreUploader.SaveInventoryItemAsync(FirebaseManager.Instance.DbUser.UserId, item);
         MyDebug.Log($"돌파 성공 → 레벨: {item.LimitBreakLevel}");
     }
     
